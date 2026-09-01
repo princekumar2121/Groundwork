@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Groundwork 3D — Global Non-Profit & Volunteer Impact Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <!-- Fullscreen 3D Background WebGL Canvas -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- Emergency Dispatch Alert Banner -->
+  <div class="emergency-bar" id="emergencyBanner">
+    <span>⚠️ <strong>URGENT FIELD DISPATCH:</strong></span>
+    <span id="emergencyText">Monsoon Flash Flood Response declared in Assam — 45 emergency shelter logistics volunteers urgently needed.</span>
+    <button onclick="dismissEmergency()" style="background:none; border:none; color:#fff; cursor:pointer; font-weight:bold; font-size:16px;">✕</button>
+  </div>
+
+  <!-- Global Navigation Header -->
+  <nav>
+    <div class="navrow">
+      <div class="logo">
+        <span class="logo-mark"></span>
+        Groundwork <span>3D</span>
+      </div>
+      
+      <div class="navlinks">
+        <a href="#globeSection">3D Satellite Globe</a>
+        <a href="#campaigns">Live Missions</a>
+        <a href="#matchmaker">AI Matchmaker</a>
+        <a href="#passport">Impact Passport</a>
+        <a href="#ngoConsole">NGO Command Center</a>
+      </div>
+
+      <div class="navcta">
+        <!-- Audio Synthesizer Mute Toggle -->
+        <button class="audio-toggle-btn" id="audioToggleBtn" onclick="toggleAudio()" title="Toggle Web Audio SFX">
+          🔊 Audio: ON
+        </button>
+
+        <!-- User Profile Pill -->
+        <div id="navUserBadge" class="user-badge">
+          <div class="user-avatar" id="avatarInitial">P</div>
+          <div>
+            <span id="navUserName" style="display:block; line-height:1.2;">Prince Singh</span>
+            <small id="navUserRole" style="font-size:10px; color:var(--gold); font-weight:700;">VOLUNTEER</small>
+          </div>
+          <a href="javascript:void(0)" onclick="logout()" style="margin-left:8px; font-size:11px; opacity:0.65; color:var(--clay);">(Logout)</a>
+        </div>
+
+        <button class="btn btn-ghost" id="loginBtn" onclick="openAuthModal('login')">Sign In</button>
+        <button class="btn btn-solid" onclick="openCampaignModal()">+ Deploy Mission</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="wrap hero">
+    <div>
+      <div class="kicker">Decentralized Humanitarian Logistics Engine</div>
+      <h1>Where changemakers meet real coordinates on Earth.</h1>
+      <p class="lede">Connect with vetted non-profits, teleport to interactive coordinate beacons across the 3D globe, log verified volunteer hours, and mint cryptographically audited certificates.</p>
+      
+      <div class="hero-ctas">
+        <button class="btn btn-gold" onclick="openAuthModal('signup')">Create Passport Account</button>
+        <a class="btn btn-ghost" href="#globeSection">Explore 3D Mission Globe ↓</a>
+      </div>
+
+      <div class="hero-proof">
+        <div><div class="proof-num" id="statNGOs">1,248</div><div class="proof-label">Vetted Non-Profits</div></div>
+        <div><div class="proof-num" id="statVols">24,850</div><div class="proof-label">Active Changemakers</div></div>
+        <div><div class="proof-num" id="statHours">2.41M</div><div class="proof-label">Accredited Hours</div></div>
+        <div><div class="proof-num">99.1%</div><div class="proof-label">Deployment Reliability</div></div>
+      </div>
+    </div>
+
+    <!-- 3D Interactive Floating Cards -->
+    <div class="stack-container" id="heroStack">
+      <div class="stack-card card-a" onclick="teleportGlobeTo(21.9, 89.18)">
+        <span class="tag">Environment</span>
+        <h4>Sundarbans Mangrove Reforestation</h4>
+        <div class="meta">📍 21.90° N, 89.18° E · 40 Spots Open</div>
+        <div class="bar"><div class="bar-fill" style="width:72%"></div></div>
+      </div>
+      <div class="stack-card card-b" onclick="teleportGlobeTo(26.2, 92.93)">
+        <span class="tag">Disaster Relief</span>
+        <h4>Assam Flood Logistics Operations</h4>
+        <div class="meta">📍 26.20° N, 92.93° E · Urgent Deployment</div>
+        <div class="bar"><div class="bar-fill" style="width:88%"></div></div>
+      </div>
+      <div class="stack-card card-c" onclick="teleportGlobeTo(28.61, 77.20)">
+        <span class="tag">Education</span>
+        <h4>Delhi STEM Mentorship Labs</h4>
+        <div class="meta">📍 28.61° N, 77.20° E · 15 Spots Open</div>
+        <div class="bar"><div class="bar-fill" style="width:45%"></div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Realtime Logistics Ledger -->
+  <div class="stats-strip">
+    <div class="wrap stats-row">
+      <div><span>🌿 <strong id="metricSaplings">418,290</strong></span> Saplings Planted</div>
+      <div><span>💧 <strong id="metricWater">1.82M</strong></span> Liters Clean Water Purified</div>
+      <div><span>📦 <strong id="metricMeals">89,400</strong></span> Triage Kits Distributed</div>
+      <div><span>📚 <strong id="metricStudents">34,120</strong></span> Students Tutored</div>
+    </div>
+  </div>
+
+  <!-- Interactive 3D Satellite Earth Section -->
+  <section class="section" id="globeSection" style="padding-top:60px;">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Interactive 3D Earth Mission Telemetry</h2>
+        <p class="sub">Click on coordinate beacons to focus, retrieve real-time ground telemetry, and deploy to field rosters directly.</p>
+      </div>
+
+      <div class="globe-container">
+        <canvas id="globe-canvas" style="width:100%; height:100%;"></canvas>
+        
+        <div class="globe-hud">
+          <div class="hud-item"><span>TARGET COORDINATES</span><strong id="hudCoords">21.90° N, 89.18° E</strong></div>
+          <div class="hud-item"><span>ACTIVE BEACON SECTOR</span><strong id="hudSector">Sundarbans Delta (Asia)</strong></div>
+          <div class="hud-item"><span>MISSION STATUS</span><strong id="hudStatus" style="color:#5cdbb5;">ACTIVE ROSTER</strong></div>
+          <button class="btn btn-gold" style="padding:6px 14px; font-size:12px;" onclick="scrollToCampaigns()">View Sector Missions</button>
+        </div>
+
+        <div class="globe-legend">
+          <div style="font-weight:700; margin-bottom:4px;">Beacon Legend</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--leaf-bright);"></span> Environment</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--gold);"></span> Education</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#e056fd;"></span> Healthcare</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--clay);"></span> Disaster Relief</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Smart Matchmaker Section -->
+  <section class="section" id="matchmaker">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>AI-Powered Volunteer Matchmaker</h2>
+        <p class="sub">Our weighted matching algorithm computes compatibility based on your availability, primary skills, and preferred humanitarian sector.</p>
+      </div>
+
+      <div class="matchmaker-box">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:20px;">
+          <div>
+            <label style="font-size:12px; font-weight:700; color:#586456; text-transform:uppercase;">Primary Skill</label>
+            <select id="matchSkill" class="search-box" style="width:100%; margin-top:6px;">
+              <option value="Teaching">Education & Mentoring</option>
+              <option value="Tree Planting">Field Environmental Planting</option>
+              <option value="Logistics">Supply Chain & Emergency Logistics</option>
+              <option value="Medical">Triage & Healthcare Support</option>
+              <option value="Software">Web & Technical Infrastructure</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:700; color:#586456; text-transform:uppercase;">Weekly Capacity</label>
+            <select id="matchHours" class="search-box" style="width:100%; margin-top:6px;">
+              <option value="3">1 - 3 Hours / week</option>
+              <option value="6">4 - 8 Hours / week</option>
+              <option value="12">9+ Hours / week (Field Sprint)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:700; color:#586456; text-transform:uppercase;">Cause Pillar</label>
+            <select id="matchCause" class="search-box" style="width:100%; margin-top:6px;">
+              <option value="all">Any Impact Sector</option>
+              <option value="env">Environmental Rewilding</option>
+              <option value="edu">Educational Equity</option>
+              <option value="health">Healthcare Triage</option>
+              <option value="relief">Disaster Relief</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-solid" onclick="calculateMatches()" style="width:100%;">Run AI Compatibility Analysis</button>
+
+        <div id="matchResults" style="margin-top:24px; display:none;">
+          <h4 style="font-size:16px; margin-bottom:12px; color:var(--pine);">Top Compatibility Matches:</h4>
+          <div id="matchList" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Missions Campaign Board -->
+  <section class="section" id="campaigns">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Active Mission Roster</h2>
+        <p class="sub">Filter by sector, search by region or keyword, and join active teams with instantaneous confirmation.</p>
+      </div>
+
+      <div class="campaign-toolbar">
+        <div class="filters">
+          <button class="filter-pill active" onclick="setFilter('all', this)">All Sectors</button>
+          <button class="filter-pill" onclick="setFilter('env', this)">Environment</button>
+          <button class="filter-pill" onclick="setFilter('edu', this)">Education</button>
+          <button class="filter-pill" onclick="setFilter('health', this)">Healthcare</button>
+          <button class="filter-pill" onclick="setFilter('relief', this)">Disaster Relief</button>
+        </div>
+        <input type="text" id="campaignSearch" class="search-box" placeholder="🔍 Search missions or coordinates..." oninput="handleSearch(this.value)">
+      </div>
+
+      <div class="camp-grid" id="campGrid"></div>
+    </div>
+  </section>
+
+  <!-- Impact Passport, 3D Honor Medal Studio & Certificate Generator -->
+  <section class="section" id="passport">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Impact Passport & 3D Medal Studio</h2>
+        <p class="sub">Interactive 3D service awards, authenticated hour logging, and cryptographic certificate issuance.</p>
+      </div>
+
+      <div class="passport-grid">
+        <!-- Personal Passport & Verified Stats -->
+        <div class="passport-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;">
+            <div>
+              <h3 style="font-size:22px; color:var(--pine);" id="passName">Prince Singh</h3>
+              <p style="font-size:13px; color:#586456;">Decentralized Volunteer ID: <strong id="passId">GW-8921-X9</strong></p>
+            </div>
+            <span class="tag" style="background:var(--pine); color:var(--parchment);" id="passTier">Tier II: Pioneer</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div style="background:#fff; padding:14px; border-radius:12px; border:1px solid var(--line);">
+              <div style="font-size:11px; font-weight:700; color:#586456;">TOTAL HOURS</div>
+              <div style="font-size:26px; font-weight:800; color:var(--pine);" id="passHours">28 hrs</div>
+            </div>
+            <div style="background:#fff; padding:14px; border-radius:12px; border:1px solid var(--line);">
+              <div style="font-size:11px; font-weight:700; color:#586456;">MISSIONS JOINED</div>
+              <div style="font-size:26px; font-weight:800; color:var(--leaf);" id="passCount">4</div>
+            </div>
+          </div>
+
+          <h4 style="font-size:14px; margin-bottom:8px; color:var(--pine);">Active Missions Roster:</h4>
+          <div id="passMissionList" style="font-size:13px; color:#586456; max-height:120px; overflow-y:auto; margin-bottom:20px;">
+            <em>Sign in and join campaigns to populate your active passport log.</em>
+          </div>
+
+          <button class="btn btn-gold" style="width:100%;" onclick="generateOfficialCertificate()">
+            📜 Mint Verified Audit Certificate (QR + Checksum)
+          </button>
+        </div>
+
+        <!-- 3D Medal Hologram Inspector -->
+        <div class="passport-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <h4 style="font-size:16px; margin-bottom:6px; color:var(--pine);">3D Honor Medal Hologram</h4>
+          <p style="font-size:12px; color:#586456; margin-bottom:12px;">Drag with cursor to rotate and inspect in 3D space.</p>
+          <div class="medal-canvas-wrap">
+            <canvas id="medal-canvas" style="width:100%; height:100%;"></canvas>
+          </div>
+          <div style="margin-top:10px; font-size:12.5px; font-weight:700; color:var(--gold-2);" id="medalTitle">
+            🎖️ Order of the Green Horizon (Gold Tier)
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NGO Command Center & Organizer Console -->
+  <section class="section" id="ngoConsole" style="background:rgba(15,27,20,0.03); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>NGO Logistics & Organizer Command Center</h2>
+        <p class="sub">Deploy coordinate pins directly to the 3D globe, review volunteer applications, and broadcast emergency alerts.</p>
+      </div>
+
+      <div class="ngo-console-grid">
+        <!-- Application Review Queue -->
+        <div class="console-box">
+          <h3 style="font-size:18px; margin-bottom:14px; color:var(--pine);">Volunteer Applicant Pipeline</h3>
+          <div class="applicant-table" id="applicantQueue">
+            <!-- Dynamically injected -->
+          </div>
+        </div>
+
+        <!-- Emergency Broadcast Dispatcher -->
+        <div class="console-box">
+          <h3 style="font-size:18px; margin-bottom:14px; color:var(--pine);">Emergency Alert Dispatcher</h3>
+          <p style="font-size:13px; color:#586456; margin-bottom:14px;">Broadcast high-priority disaster warnings across the global network banner.</p>
+          <div class="field">
+            <label>Emergency Dispatch Message</label>
+            <input type="text" id="emergencyInput" placeholder="e.g. Cyclone evacuation support needed in Odisha...">
+          </div>
+          <button class="btn btn-solid" style="width:100%; background:var(--clay);" onclick="dispatchEmergencyAlert()">
+            📡 Broadcast Network Alert
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Band -->
+  <section class="section" id="join">
+    <div class="wrap">
+      <div class="cta-band">
+        <div>
+          <h2 style="font-size:38px; line-height:1.1; margin-bottom:16px;">Scale your non-profit or join high-impact field teams.</h2>
+          <p style="font-size:16px; opacity:0.85; line-height:1.6; margin-bottom:28px;">Direct connection, zero middle layers, and cryptographically verified proof of impact.</p>
+          <div class="hero-ctas">
+            <button class="btn btn-gold" onclick="openCampaignModal()">Deploy Coordinate Mission</button>
+            <button class="btn btn-ghost" style="color:#fff; border-color:var(--line-dark);" onclick="openAuthModal('signup')">Create Free Passport</button>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>Fast Volunteer Registration</h3>
+          <form onsubmit="handleQuickSignup(event)">
+            <div class="field">
+              <label>Full Name</label>
+              <input type="text" id="quickName" placeholder="e.g. Elena Rostova" required>
+            </div>
+            <div class="field">
+              <label>Email Address</label>
+              <input type="email" id="quickEmail" placeholder="elena@domain.org" required>
+            </div>
+            <div class="field">
+              <label>Primary Cause Pillar</label>
+              <select id="quickCause">
+                <option value="Environment">Environmental Conservation</option>
+                <option value="Education">Education & Youth Literacy</option>
+                <option value="Healthcare">Rural Healthcare & Triage</option>
+                <option value="Disaster Relief">Disaster Relief Operations</option>
+              </select>
+            </div>
+            <button class="btn btn-solid" type="submit" style="width:100%; margin-top:8px;">Initialize Impact Account</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-row">
+        <div class="logo"><span class="logo-mark"></span>Groundwork 3D</div>
+        <div class="foot-cols">
+          <div class="foot-col">
+            <h5>3D Engine</h5>
+            <a href="#globeSection">Global Satellite Earth</a>
+            <a href="#campaigns">Live Campaign Roster</a>
+            <a href="#matchmaker">AI Matchmaker</a>
+          </div>
+          <div class="foot-col">
+            <h5>Passport</h5>
+            <a href="#passport">3D Honor Medal</a>
+            <a href="#passport">Audited Certificates</a>
+            <a href="#">Verification API</a>
+          </div>
+          <div class="foot-col">
+            <h5>Command Center</h5>
+            <a href="#ngoConsole">NGO Organizer Hub</a>
+            <a href="javascript:void(0)" onclick="openCampaignModal()">Deploy New Mission</a>
+            <a href="#emergencyBanner">Emergency Broadcasts</a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Groundwork 3D Engine. Built for non-profits and changemakers worldwide.</span>
+        <span>Cryptographically Audited Service Record Protocol</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Authentication Modal (Sign in, Sign up, Google OAuth) -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="modal-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Google OAuth Button -->
+      <button class="btn btn-google" onclick="loginWithGoogle()" style="margin-bottom:16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:8px;">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div style="text-align:center; font-size:12px; color:#888; margin-bottom:16px; position:relative;">
+        <span style="background:var(--parchment); padding:0 8px; position:relative; z-index:1;">or continue with email</span>
+        <hr style="position:absolute; top:50%; width:100%; border:none; border-top:1px solid var(--line); margin:0;">
+      </div>
+
+      <form onsubmit="handleAuthSubmit(event)">
+        <div class="field" id="nameField" style="display:none;">
+          <label>Full Name</label>
+          <input type="text" id="authName" placeholder="Prince Singh">
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="authEmail" placeholder="you@example.org" required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="••••••••" required>
+        </div>
+        <button class="btn btn-solid" type="submit" id="authSubmitBtn" style="width:100%; margin-top:10px;">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Deploy Mission Modal (With 3D Globe Coordinate Dropper) -->
+  <div class="modal-overlay" id="campaignModal">
+    <div class="modal" style="max-width:540px;">
+      <button class="modal-close" onclick="closeCampaignModal()">&times;</button>
+      <h3 style="font-size:22px; margin-bottom:6px; color:var(--pine);">Deploy Coordinate Mission</h3>
+      <p style="font-size:13px; color:#586456; margin-bottom:18px;">Drop an active beacon pin onto the 3D globe and campaign feed.</p>
+      
+      <form onsubmit="handleCreateCampaign(event)">
+        <div class="field">
+          <label>Mission Title</label>
+          <input type="text" id="newCampTitle" placeholder="e.g. Rainforest Biodiversity Protection" required>
+        </div>
+        <div class="field">
+          <label>NGO / Organizing Trust</label>
+          <input type="text" id="newCampOrg" placeholder="e.g. Green Canopy Network" required>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="field">
+            <label>Cause Sector</label>
+            <select id="newCampCause">
+              <option value="env">Environment</option>
+              <option value="edu">Education</option>
+              <option value="health">Healthcare</option>
+              <option value="relief">Disaster Relief</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Required Capacity</label>
+            <input type="text" id="newCampSpots" placeholder="e.g. 25 Spots" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="field">
+            <label>Latitude (°N / °S)</label>
+            <input type="number" step="0.01" id="newCampLat" placeholder="e.g. 28.61" required>
+          </div>
+          <div class="field">
+            <label>Longitude (°E / °W)</label>
+            <input type="number" step="0.01" id="newCampLng" placeholder="e.g. 77.20" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Session Hours Commitment</label>
+          <input type="text" id="newCampHours" placeholder="e.g. 5 hrs/session" required>
+        </div>
+
+        <div class="field">
+          <label>Mission Brief</label>
+          <textarea id="newCampDesc" rows="3" placeholder="Specify on-site tasks, safety gear, and briefing schedule..." required></textarea>
+        </div>
+
+        <button class="btn btn-solid" type="submit" style="width:100%; margin-top:8px;">Deploy to Global 3D Satellite Map</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Verified Impact Certificate Modal -->
+  <div class="modal-overlay" id="certModal">
+    <div class="modal" style="max-width:580px;">
+      <button class="modal-close" onclick="closeCertModal()">&times;</button>
+      <div class="cert-box">
+        <h2 style="font-size:24px; color:var(--pine); margin-bottom:4px;">CERTIFICATE OF COMMENDATION</h2>
+        <p style="font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#666; margin-bottom:16px;">Verified Global Humanitarian Record</p>
+        
+        <p style="font-size:14px; margin-bottom:8px;">This is to formally certify that</p>
+        <h3 style="font-size:26px; color:var(--leaf); margin-bottom:8px;" id="certUserName">Prince Singh</h3>
+        <p style="font-size:13.5px; color:#555; line-height:1.5; margin-bottom:20px;">
+          has contributed <strong id="certHours">28 verified service hours</strong> across verified field campaigns under the Groundwork 3D decentralized humanitarian framework.
+        </p>
+
+        <div class="cert-qr-wrap">
+          <canvas id="certQrCanvas" width="130" height="130"></canvas>
+          <div style="font-size:11.5px; color:#555; text-align:left;">
+            <div><strong>AUDIT DIGEST:</strong></div>
+            <div style="font-family:monospace; font-size:10px; color:#333; word-break:break-all;" id="certHash">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</div>
+            <div style="margin-top:6px;"><strong>STATUS:</strong> <span style="color:#2C7A53;">CRYPTOGRAPHICALLY VERIFIED ✓</span></div>
+          </div>
+        </div>
+
+        <button class="btn btn-solid" style="margin-top:20px; width:100%;" onclick="closeCertModal()">Dismiss Certificate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Sound / Action Toast Notification -->
+  <div class="toast" id="toast">Global Alert Notification</div>
+
+  <!-- Main JavaScript App -->
+  <script src="app.js"></script>
+</body>
+</html>
